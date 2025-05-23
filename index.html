@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チョコバナナ売上管理</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            padding: 20px; /* 全体的な余白を追加 */
+            box-sizing: border-box; /* paddingがwidthに影響しないように */
+        }
+
+        .button-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap; /* 画面が狭くなったら折り返す */
+            justify-content: center; /* ボタンの配置を中央に */
+            max-width: 100%; /* コンテナが画面幅を超えないように */
+        }
+
+        .styled-button {
+            width: 150px;
+            height: 100px;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .button-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px; /* ボタンラッパー間の余白 */
+        }
+
+        /* 個別のボタン色 */
+        .button-yellow { background-color: #ffc107; color: #333333; }
+        .button-whiteyellow { background-color: #faff9d; color: #333333; }
+        .button-red { background-color: #dc3545; }
+        .button-whitered { background-color: #ff00b7; }
+
+        /* ホバー時の色 */
+        .button-yellow:hover { background-color: #e0a800; }
+        .button-whiteyellow:hover { background-color: #dbff4c; }
+        .button-red:hover { background-color: #c82333; }
+        .button-whitered:hover { background-color: #f734bc; }
+
+        .click-count {
+            font-size: 14px;
+            color: #555;
+            white-space: nowrap;
+        }
+
+        /* --- スマートフォン表示用のメディアクエリ --- */
+        @media (max-width: 600px) { /* 画面幅が600px以下の場合に適用 */
+            .button-container {
+                flex-direction: column; /* ボタンを縦に並べる */
+                gap: 15px; /* ボタン間の縦方向のスペース */
+                padding: 15px;
+            }
+
+            .styled-button {
+                width: 100%; /* ボタンの幅をコンテナいっぱいに広げる */
+                max-width: 250px; /* 最大幅を設定して大きくなりすぎないように */
+                height: 80px; /* ボタンの高さを調整 */
+                font-size: 16px; /* フォントサイズを調整 */
+            }
+
+            .button-wrapper {
+                width: 100%; /* ラッパーも幅いっぱいに */
+                margin-bottom: 0; /* ラッパー間の余白をリセット（gapで対応するため） */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <div class="button-wrapper">
+            <button class="styled-button button-yellow">バナナ</button>
+            <div class="click-count">0</div>
+        </div>
+        <div class="button-wrapper">
+            <button class="styled-button button-whiteyellow">バナナ<br>マシュマロ</button>
+            <div class="click-count">0</div>
+        </div>
+        <div class="button-wrapper">
+            <button class="styled-button button-red">イチゴ</button>
+            <div class="click-count">0</div>
+        </div>
+        <div class="button-wrapper">
+            <button class="styled-button button-whitered">イチゴ<br>マシュマロ</button>
+            <div class="click-count">0</div>
+        </div>
+    </div>
+
+<script>
+        // デプロイ後に取得できるGoogle Apps ScriptのウェブアプリURLをここに貼り付けます
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzHiBavaM2AWL0wGR3l6h8no-KuhU_CRyefAqS99ODZaHVmVwfM0kgt4G2XVrPVJZgCsA/exec';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = document.querySelectorAll('.styled-button');
+            buttons.forEach(button => {
+                let count = 0;
+                const clickCountElement = button.nextElementSibling; // button-wrapper内の次の要素（click-count）を取得
+
+                button.addEventListener('click', async () => {
+                    count++;
+                    clickCountElement.textContent = `${count}`;
+
+                    const buttonName = button.textContent; // ボタンの名前を取得
+
+                    // GASにデータを送信
+                    try {
+                        const response = await fetch(GAS_WEB_APP_URL, {
+                            method: 'POST',
+                            mode: 'no-cors', // GASへのリクエストではno-corsモードを使用
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                buttonName: buttonName,
+                                currentClickCount: count, // 現在の総クリック数
+                                clickIncrement: 1 // 今回のクリック数 (常に1)
+                            }).toString(),
+                        });
+
+                        // no-corsモードのため、response.ok や response.json() は利用できないことが多い
+                        console.log('Data sent to GAS.');
+                        // もしデバッグ情報が必要な場合は、GAS側でログを出力してください
+                    } catch (error) {
+                        console.error('Error sending data to GAS:', error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
